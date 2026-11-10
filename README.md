@@ -107,12 +107,12 @@ flutter doctor
 
 Untuk mencegah konflik kode (*merge conflict*) selama pengerjaan tugas bersama:
 
-### 1. Hubungkan ke Remote Repository (GitHub / GitLab)
-Jika ketua kelompok sudah membuat repo di GitHub / GitLab:
+### 1. Hubungkan / Clone Remote Repository
+Untuk anggota kelompok yang ingin meng-clone repositori ini:
 ```bash
-git remote add origin https://github.com/<username-atau-org>/<nama-repo>.git
-git branch -M main
-git push -u origin main
+git clone https://github.com/CanLikez/cash-flow-mobcom.git
+cd cash-flow-mobcom
+flutter pub get
 ```
 
 ### 2. Alur Kerja Branch (Branching Strategy)
