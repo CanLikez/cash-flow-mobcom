@@ -6,17 +6,14 @@ Repositori ini merupakan *starter template* (fondasi awal) yang telah terstruktu
 
 ---
 
-## 👥 Informasi Kelompok
+## 👥 Anggota Kelompok
 
-| No | Nama Mahasiswa | NIM | Peran / Pembagian Tugas |
-|---|---|---|---|
-| 1 | [Nama Anggota 1] | [NIM 1] | Project Lead & State Management |
-| 2 | [Nama Anggota 2] | [NIM 2] | UI/UX & Tampilan Dashboard |
-| 3 | [Nama Anggota 3] | [NIM 3] | Form Transaksi & Validasi Input |
-| 4 | [Nama Anggota 4] | [NIM 4] | Database Lokal (SQLite / Hive) |
-| 5 | [Nama Anggota 5] | [NIM 5] | Dokumentasi & Pengujian (Testing) |
-
-*(Silakan sesuaikan nama, NIM, dan pembagian peran di atas dengan anggota kelompok Anda)*
+| No | Nama Mahasiswa | NIM |
+|:---:|---|:---:|
+| 1 | Ernando Febrian | 1313624021 |
+| 2 | Candra Afriansyah | 1313624023 |
+| 3 | Nandana Ammar Triabimanyu | 1313624030 |
+| 4 | Sukarno Adi Prasetya | 1313624010 |
 
 ---
 
