@@ -147,33 +147,65 @@ class _HomeScreenState extends State<HomeScreen> {
                 itemBuilder: (context, index) {
                   final item = _transactions[index];
                   final isIncome = item.type == TransactionType.income;
-                  return Card(
-                    margin: EdgeInsets.zero,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                  return Dismissible(
+                    key: Key(item.id),
+                    direction: DismissDirection.endToStart,
+                    background: Container(
+                      alignment: Alignment.centerRight,
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      decoration: BoxDecoration(
+                        color: Colors.red.shade400,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(Icons.delete, color: Colors.white),
                     ),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor:
-                            isIncome ? Colors.green.shade50 : Colors.red.shade50,
-                        child: Icon(
-                          isIncome ? Icons.attach_money : Icons.shopping_bag_outlined,
-                          color: isIncome ? Colors.green : Colors.red,
+                    onDismissed: (direction) {
+                      final removedItem = item;
+                      setState(() {
+                        _transactions.removeAt(index);
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Transaksi "${removedItem.title}" dihapus'),
+                          action: SnackBarAction(
+                            label: 'Batal',
+                            onPressed: () {
+                              setState(() {
+                                _transactions.insert(index, removedItem);
+                              });
+                            },
+                          ),
                         ),
+                      );
+                    },
+                    child: Card(
+                      margin: EdgeInsets.zero,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      title: Text(
-                        item.title,
-                        style: const TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                      subtitle: Text(
-                        DateFormat('dd MMM yyyy, HH:mm').format(item.date),
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                      trailing: Text(
-                        '${isIncome ? '+' : '-'} ${_currencyFormat.format(item.amount)}',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: isIncome ? Colors.green.shade700 : Colors.red.shade700,
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor:
+                              isIncome ? Colors.green.shade50 : Colors.red.shade50,
+                          child: Icon(
+                            isIncome ? Icons.attach_money : Icons.shopping_bag_outlined,
+                            color: isIncome ? Colors.green : Colors.red,
+                          ),
+                        ),
+                        title: Text(
+                          item.title,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        subtitle: Text(
+                          DateFormat('dd MMM yyyy, HH:mm').format(item.date),
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                        trailing: Text(
+                          '${isIncome ? '+' : '-'} ${_currencyFormat.format(item.amount)}',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: isIncome ? Colors.green.shade700 : Colors.red.shade700,
+                          ),
                         ),
                       ),
                     ),
@@ -184,13 +216,27 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          final newTransaction = await Navigator.push<TransactionModel>(
             context,
             MaterialPageRoute(
               builder: (context) => const AddTransactionScreen(),
             ),
           );
+
+          if (newTransaction != null) {
+            setState(() {
+              _transactions.insert(0, newTransaction);
+            });
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Transaksi "${newTransaction.title}" berhasil ditambahkan!'),
+                  backgroundColor: Colors.teal,
+                ),
+              );
+            }
+          }
         },
         icon: const Icon(Icons.add),
         label: const Text('Tambah Transaksi'),

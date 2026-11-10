@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../models/transaction_model.dart';
 
 class AddTransactionScreen extends StatefulWidget {
@@ -11,6 +12,7 @@ class AddTransactionScreen extends StatefulWidget {
 class _AddTransactionScreenState extends State<AddTransactionScreen> {
   final _formKey = GlobalKey<FormState>();
   TransactionType _selectedType = TransactionType.expense;
+  DateTime _selectedDate = DateTime.now();
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _categoryController = TextEditingController();
@@ -23,20 +25,50 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     super.dispose();
   }
 
+  Future<void> _pickDate() async {
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2100),
+    );
+
+    if (pickedDate != null) {
+      setState(() {
+        _selectedDate = DateTime(
+          pickedDate.year,
+          pickedDate.month,
+          pickedDate.day,
+          DateTime.now().hour,
+          DateTime.now().minute,
+        );
+      });
+    }
+  }
+
   void _saveTransaction() {
     if (_formKey.currentState!.validate()) {
-      // NOTE: Tempat mengintegrasikan penyimpanan lokal (SQLite, Hive, atau Shared Preferences)
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Form valid! Implementasikan penyimpanan di sini.'),
-        ),
+      final amount = double.tryParse(_amountController.text.trim()) ?? 0.0;
+      final newTransaction = TransactionModel(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        title: _titleController.text.trim(),
+        amount: amount,
+        type: _selectedType,
+        date: _selectedDate,
+        category: _categoryController.text.trim().isEmpty
+            ? (_selectedType == TransactionType.income ? 'Pemasukan' : 'Pengeluaran')
+            : _categoryController.text.trim(),
       );
-      Navigator.pop(context);
+
+      // Mengembalikan data transaksi baru ke halaman sebelumnya
+      Navigator.pop(context, newTransaction);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final dateFormat = DateFormat('EEEE, dd MMMM yyyy', 'id_ID');
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Tambah Transaksi Baru'),
@@ -103,11 +135,29 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   if (value == null || value.trim().isEmpty) {
                     return 'Nominal tidak boleh kosong';
                   }
-                  if (double.tryParse(value) == null) {
+                  if (double.tryParse(value.trim()) == null) {
                     return 'Masukkan angka nominal yang valid';
                   }
                   return null;
                 },
+              ),
+              const SizedBox(height: 16),
+
+              // Pemilih Tanggal
+              InkWell(
+                onTap: _pickDate,
+                borderRadius: BorderRadius.circular(4),
+                child: InputDecorator(
+                  decoration: const InputDecoration(
+                    labelText: 'Tanggal Transaksi',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.calendar_today_outlined),
+                  ),
+                  child: Text(
+                    dateFormat.format(_selectedDate),
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                ),
               ),
               const SizedBox(height: 16),
 
