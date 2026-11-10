@@ -172,8 +172,10 @@ class HomeScreen extends StatelessWidget {
                   confirmDismiss: (direction) async {
                     final messenger = ScaffoldMessenger.of(context);
                     await provider.remove(item.id);
+                    messenger.hideCurrentSnackBar();
                     messenger.showSnackBar(
                       SnackBar(
+                        duration: const Duration(seconds: 4),
                         content: Text('Transaksi "${item.title}" dihapus'),
                         action: SnackBarAction(
                           label: 'Batal',
