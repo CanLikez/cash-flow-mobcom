@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
 import '../models/transaction_model.dart';
 
 class AddTransactionScreen extends StatefulWidget {
-  const AddTransactionScreen({super.key});
+  const AddTransactionScreen({super.key, this.transaction});
+
+  /// When provided, the form edits this transaction instead of adding a new one.
+  final TransactionModel? transaction;
 
   @override
   State<AddTransactionScreen> createState() => _AddTransactionScreenState();
@@ -16,6 +20,21 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _categoryController = TextEditingController();
+
+  bool get _isEditing => widget.transaction != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final transaction = widget.transaction;
+    if (transaction != null) {
+      _selectedType = transaction.type;
+      _selectedDate = transaction.date;
+      _titleController.text = transaction.title;
+      _amountController.text = transaction.amount.toStringAsFixed(0);
+      _categoryController.text = transaction.category ?? '';
+    }
+  }
 
   @override
   void dispose() {
@@ -49,19 +68,32 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   void _saveTransaction() {
     if (_formKey.currentState!.validate()) {
       final amount = double.tryParse(_amountController.text.trim()) ?? 0.0;
-      final newTransaction = TransactionModel(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        title: _titleController.text.trim(),
-        amount: amount,
-        type: _selectedType,
-        date: _selectedDate,
-        category: _categoryController.text.trim().isEmpty
-            ? (_selectedType == TransactionType.income ? 'Pemasukan' : 'Pengeluaran')
-            : _categoryController.text.trim(),
-      );
+      final category = _categoryController.text.trim().isEmpty
+          ? (_selectedType == TransactionType.income
+                ? 'Pemasukan'
+                : 'Pengeluaran')
+          : _categoryController.text.trim();
 
-      // Mengembalikan data transaksi baru ke halaman sebelumnya
-      Navigator.pop(context, newTransaction);
+      final existing = widget.transaction;
+      final transaction = existing == null
+          ? TransactionModel(
+              id: DateTime.now().millisecondsSinceEpoch.toString(),
+              title: _titleController.text.trim(),
+              amount: amount,
+              type: _selectedType,
+              date: _selectedDate,
+              category: category,
+            )
+          : existing.copyWith(
+              title: _titleController.text.trim(),
+              amount: amount,
+              type: _selectedType,
+              date: _selectedDate,
+              category: category,
+            );
+
+      // Mengembalikan data transaksi ke halaman sebelumnya
+      Navigator.pop(context, transaction);
     }
   }
 
@@ -71,7 +103,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tambah Transaksi Baru'),
+        title: Text(_isEditing ? 'Edit Transaksi' : 'Tambah Transaksi Baru'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -177,7 +209,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               ElevatedButton.icon(
                 onPressed: _saveTransaction,
                 icon: const Icon(Icons.save),
-                label: const Text('Simpan Transaksi'),
+                label: Text(
+                  _isEditing ? 'Simpan Perubahan' : 'Simpan Transaksi',
+                ),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
@@ -189,4 +223,3 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     );
   }
 }
-
