@@ -1,0 +1,8 @@
+# Exclude platform runner and boilerplate code from GitHub language statistics
+# agar statistik bahasa di GitHub menampilkan 100% Dart
+android/** linguist-vendored
+ios/** linguist-vendored
+windows/** linguist-vendored
+linux/** linguist-vendored
+macos/** linguist-vendored
+web/** linguist-vendored
