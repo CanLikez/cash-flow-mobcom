@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../core/transaction_icons.dart';
 import '../features/transactions/transaction_provider.dart';
 import '../models/transaction_model.dart';
 import 'add_transaction_screen.dart';
@@ -154,6 +155,11 @@ class HomeScreen extends StatelessWidget {
               itemBuilder: (context, index) {
                 final item = transactions[index];
                 final isIncome = item.type == TransactionType.income;
+                final itemIcon =
+                    resolveTransactionIcon(item.icon) ??
+                    (isIncome
+                        ? Icons.attach_money
+                        : Icons.shopping_bag_outlined);
                 return Dismissible(
                   key: Key(item.id),
                   direction: DismissDirection.endToStart,
@@ -198,9 +204,7 @@ class HomeScreen extends StatelessWidget {
                             ? Colors.green.shade50
                             : Colors.red.shade50,
                         child: Icon(
-                          isIncome
-                              ? Icons.attach_money
-                              : Icons.shopping_bag_outlined,
+                          itemIcon,
                           color: isIncome ? Colors.green : Colors.red,
                         ),
                       ),

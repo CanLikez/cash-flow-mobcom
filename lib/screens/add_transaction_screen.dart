@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../core/transaction_icons.dart';
 import '../models/transaction_model.dart';
 
 class AddTransactionScreen extends StatefulWidget {
@@ -20,6 +21,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _categoryController = TextEditingController();
+  String? _selectedIcon;
 
   bool get _isEditing => widget.transaction != null;
 
@@ -33,6 +35,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       _titleController.text = transaction.title;
       _amountController.text = transaction.amount.toStringAsFixed(0);
       _categoryController.text = transaction.category ?? '';
+      _selectedIcon = transaction.icon;
     }
   }
 
@@ -83,6 +86,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               type: _selectedType,
               date: _selectedDate,
               category: category,
+              icon: _selectedIcon,
             )
           : existing.copyWith(
               title: _titleController.text.trim(),
@@ -90,6 +94,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               type: _selectedType,
               date: _selectedDate,
               category: category,
+              icon: _selectedIcon,
             );
 
       // Mengembalikan data transaksi ke halaman sebelumnya
@@ -203,6 +208,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   prefixIcon: Icon(Icons.category_outlined),
                 ),
               ),
+              const SizedBox(height: 20),
+
+              // Pemilih Ikon Transaksi (Opsional)
+              _buildIconChooser(),
               const SizedBox(height: 24),
 
               // Tombol Simpan
@@ -214,6 +223,115 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 ),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildIconChooser() {
+    final theme = Theme.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              Icons.emoji_emotions_outlined,
+              size: 18,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              'Ikon Transaksi (Opsional)',
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final option in transactionIcons)
+              _IconOptionTile(
+                option: option,
+                selected: _selectedIcon == option.key,
+                onTap: () {
+                  setState(() {
+                    // Ketuk ikon yang sama untuk melepas pilihan.
+                    _selectedIcon = _selectedIcon == option.key
+                        ? null
+                        : option.key;
+                  });
+                },
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _IconOptionTile extends StatelessWidget {
+  const _IconOptionTile({
+    required this.option,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final TransactionIconOption option;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final foreground = selected
+        ? colorScheme.onPrimaryContainer
+        : colorScheme.onSurfaceVariant;
+
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: option.label,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          width: 76,
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+          decoration: BoxDecoration(
+            color: selected ? colorScheme.primaryContainer : null,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: selected
+                  ? colorScheme.primary
+                  : colorScheme.outlineVariant,
+              width: selected ? 2 : 1,
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(option.icon, size: 22, color: foreground),
+              const SizedBox(height: 4),
+              Text(
+                option.label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+                  color: foreground,
                 ),
               ),
             ],

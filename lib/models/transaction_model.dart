@@ -8,6 +8,7 @@ class TransactionModel {
   final DateTime date;
   final String? category;
   final String? note;
+  final String? icon;
 
   const TransactionModel({
     required this.id,
@@ -17,6 +18,7 @@ class TransactionModel {
     required this.date,
     this.category,
     this.note,
+    this.icon,
   });
 
   Map<String, Object?> toMap() {
@@ -28,6 +30,7 @@ class TransactionModel {
       'date': date.millisecondsSinceEpoch,
       'category': category,
       'note': note,
+      'icon': icon,
     };
   }
 
@@ -40,6 +43,7 @@ class TransactionModel {
       date: DateTime.fromMillisecondsSinceEpoch(map['date'] as int),
       category: map['category'] as String?,
       note: map['note'] as String?,
+      icon: map['icon'] as String?,
     );
   }
 
@@ -51,6 +55,7 @@ class TransactionModel {
     DateTime? date,
     String? category,
     String? note,
+    String? icon,
   }) {
     return TransactionModel(
       id: id ?? this.id,
@@ -60,6 +65,7 @@ class TransactionModel {
       date: date ?? this.date,
       category: category ?? this.category,
       note: note ?? this.note,
+      icon: icon ?? this.icon,
     );
   }
 }

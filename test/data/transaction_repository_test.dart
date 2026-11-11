@@ -33,6 +33,7 @@ void main() {
     String title = 'Test',
     String? category,
     String? note,
+    String? icon,
   }) {
     return TransactionModel(
       id: id,
@@ -42,6 +43,7 @@ void main() {
       date: date ?? DateTime.utc(2026, 1, 1),
       category: category,
       note: note,
+      icon: icon,
     );
   }
 
@@ -85,6 +87,17 @@ void main() {
       expect(copy.date, model.date);
       expect(copy.category, isNull);
       expect(copy.note, isNull);
+    });
+
+    test('icon roundtrips through toMap/fromMap', () {
+      final withIcon = transaction(id: '1', amount: 10, icon: 'coffee');
+      final withoutIcon = transaction(id: '2', amount: 20);
+
+      expect(withIcon.toMap()['icon'], 'coffee');
+      expect(withoutIcon.toMap()['icon'], isNull);
+
+      expect(TransactionModel.fromMap(withIcon.toMap()).icon, 'coffee');
+      expect(TransactionModel.fromMap(withoutIcon.toMap()).icon, isNull);
     });
 
     test('copyWith replaces only given fields', () {
@@ -170,6 +183,30 @@ void main() {
       expect(stored.date, DateTime(2026, 6, 1));
       expect(stored.category, 'Salary');
       expect(stored.note, 'Updated');
+    });
+
+    test('icon roundtrips through insert, update and getAll', () async {
+      await repository.insert(
+        transaction(id: 'with', amount: 10, icon: 'coffee'),
+      );
+      await repository.insert(transaction(id: 'without', amount: 20));
+
+      var all = await repository.getAll();
+      var byId = {for (final item in all) item.id: item};
+      expect(byId['with']!.icon, 'coffee');
+      expect(byId['without']!.icon, isNull);
+
+      await repository.update(
+        transaction(id: 'with', amount: 10, icon: 'food'),
+      );
+      await repository.update(
+        transaction(id: 'without', amount: 20, icon: 'salary'),
+      );
+
+      all = await repository.getAll();
+      byId = {for (final item in all) item.id: item};
+      expect(byId['with']!.icon, 'food');
+      expect(byId['without']!.icon, 'salary');
     });
 
     test('delete removes only the matching transaction', () async {

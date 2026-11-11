@@ -24,7 +24,7 @@ class AppDatabase {
     return _factory.openDatabase(
       path,
       options: OpenDatabaseOptions(
-        version: 1,
+        version: 2,
         onCreate: (db, version) async {
           await db.execute('''
 CREATE TABLE $table (
@@ -34,9 +34,15 @@ CREATE TABLE $table (
   type TEXT NOT NULL,
   date INTEGER NOT NULL,
   category TEXT,
-  note TEXT
+  note TEXT,
+  icon TEXT
 )
 ''');
+        },
+        onUpgrade: (db, oldVersion, newVersion) async {
+          if (oldVersion < 2) {
+            await db.execute('ALTER TABLE $table ADD COLUMN icon TEXT');
+          }
         },
       ),
     );
